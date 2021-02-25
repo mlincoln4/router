@@ -302,6 +302,7 @@ class Router:
     """ handle update packets """
     self.updates[packet["src"]] = packet
     self.add_forwarding(packet)
+    self.coalesce
     packet["msg"]["ASPath"].append(self.asn)
     for key in self.sockets:
       if key != srcif:
