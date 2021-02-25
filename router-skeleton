@@ -201,6 +201,7 @@ class Router:
               lowest_ip[i] = ip[i]
             else:
               routes.pop(i)
+              i -= 1
               break
       if len(routes) >= 1:
         # Final check: enforce peering relationships
