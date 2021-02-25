@@ -107,6 +107,7 @@ class Router:
           longest_mask = length
         else:
           outroutes.pop(i)
+          i -= 1
     return outroutes
 
   def get_shortest_as_path(self, routes):
