@@ -196,6 +196,8 @@ class Router:
         lowest_ip = [float('inf'), float('inf'), float('inf'), float('inf')]
         for i in range(len(routes)):
           ip = [int(x) for x in routes[i]["peer"].split('.')]
+          print(ip)
+          print(lowest_ip)
           for j in range(4):
             if ip[j] < lowest_ip[j]:
               lowest_ip[j] = ip[j]
