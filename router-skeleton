@@ -198,8 +198,8 @@ class Router:
       if len(routes) > 1:
         # Final check: enforce peering relationships
         route = self.filter_relationships(srcif, routes[0])
-      if route:
-        peer = route["peer"]
+        if route:
+          peer = route["peer"]
     return self.sockets[peer] if peer else None
 
   def forward(self, srcif, packet):
