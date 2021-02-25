@@ -141,20 +141,20 @@ class Router:
 
   def get_origin_routes(self, routes):
     """ select origin routes: EGP > IGP > UNK """
-    EGP = []
     IGP = []
+    EGP = []
     UNK = []
     for route in routes:
-      if route["origin"] == "EGP":
-        EGP.append(route)
-      elif route["origin"] == "IGP":
+      if route["origin"] == "IGP":
         IGP.append(route)
+      elif route["origin"] == "EGP":
+        EGP.append(route)
       else:
         UNK.append(route)
-    if EGP:
-      return EGP
-    elif IGP:
+    if IGP:
       return IGP
+    elif EGP:
+      return EGP
     else:
       return UNK
 
