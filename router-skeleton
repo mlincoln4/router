@@ -197,6 +197,7 @@ class Router:
               break
       if len(routes) > 1:
         # Final check: enforce peering relationships
+        print(routes)
         route = self.filter_relationships(srcif, routes[0])
         if route:
           peer = route["peer"]
