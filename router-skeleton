@@ -101,7 +101,7 @@ class Router:
         netmask = route['netmask'].split('.')
         netmask_list = [format(int(x), '08b') for x in netmask]
         netmask = ''.join(netmask_list)
-        length = netmask.count(1)
+        length = netmask.count('1')
         if length >= longest_mask:
           longest_mask = length
         else:
