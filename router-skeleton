@@ -222,10 +222,83 @@ class Router:
       return False
     sock.send(json.dumps(packet).encode())
     return True
+  
+  def get_masked(self, network, netmask):
+      network_list = [format(int(x), '08b') for x in network.split('.')]
+      netmask_list = [format(int(x), '08b') for x in netmask.split('.')]
+      masked = ['', '', '', '']
+      for i in range(4):
+        for j in range(8):
+          if network_list[i][j] == '1' and netmask_list[i][j] == '1':
+            masked[i] += '1'
+          else:
+            masked[i] += '0'
+      return ''.join(masked)
+  
+  def get_mask_length(self, netmask):
+      netmask = netmask.split('.')
+      netmask_list = [format(int(x), '08b') for x in netmask]
+      netmask = ''.join(netmask_list)
+      mask_length = netmask.count('1')
+      return mask_length
+
+  def binary_to_ip(self, binary):
+    net_list = []
+    for i in range(32):
+      entry += binary[i]
+      if i % 8 == 7:
+        net_list.append(str(int(entry, 2)))
+        entry = []
+    return '.'.join(net_list)
+
+  def same_attributes(self, route, other):
+    msg1 = route["msg"]
+    msg2 = other["msg"]
+    return msg1["localpref"] == msg2["localpref"] and
+    msg1["selfOrigin"] == msg2["selfOrigin"] and
+    msg1["ASPath"] == msg2["ASPath"] and
+    msg1["origin"] == msg2["origin"]
 
   def coalesce(self):
     """ coalesce any routes that are right next to each other """
-    # TODO (this is the most difficult task, save until last)
+    peer_routes = {}
+    routes = self.routes
+    for route in routes:
+      if route["peer"] in peer_routes:
+        peer_routes[route["peer"]].append(route)
+      else:
+        peer_routes[route["peer"]] = [route]
+    
+    for key in peer_routes:
+      route = peer_routes[key]
+      mask_length = self.get_mask_length(route['netmask'])
+      for other_key in peer_routes:
+        if other_key == key:
+          continue
+        other_route = peer_routes[other_key]
+        other_mask_length = self.get_mask_length(other_route["netmask"])
+        if other_mask_length == mask_length:
+          mask = self.get_masked(route["network"], route["netmask"])
+          other_mask = self.get_masked(other_route["network"], other_route["netmask"])
+          same = True
+          for i in range(mask_length - 1):
+            if mask[i] != other_mask[i]:
+              same = False
+              break
+          if same and self.same_attributes(route, other_route):
+            if (mask[mask_length - 1] == '0'):
+              new_net = mask
+            else:
+              new_net = other_mask
+            new_net = self.binary_to_ip(new_net)
+            self.routes.remove(route)
+            self.routes.remove(other_route)
+            new_mask_length = mask_length - 1
+            new_mask = '1' * new_mask_length + '0' * (32 - new_mask_length)
+            new_mask = self.binary_to_ip(new_mask)
+            route["network"] = new_net
+            route["netmask"] = new_mask
+            self.add_forwarding({"msg" : route})
     return False
 
   def update(self, srcif, packet):
