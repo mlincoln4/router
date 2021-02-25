@@ -209,8 +209,7 @@ class Router:
       print("test")
       self.send_error(sock, srcif, packet)
       return False
-    peer = routes[0]["peer"]
-    self.sockets[peer].send(json.dumps(packet).encode())
+    sock.send(json.dumps(packet).encode())
     return True
 
   def coalesce(self):
