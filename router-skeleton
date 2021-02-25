@@ -233,8 +233,8 @@ class Router:
       if key != srcif:
         packet["src"] = key[:-1] + "1"
         packet["dst"] = key
-        relationship_to = self.relationships[key]
-        relationship_from = self.relationships[srcif]
+        relationship_to = self.relations[key]
+        relationship_from = self.relations[srcif]
         if relationship_to == "cust" or relationship_from == "cust":
           self.sockets[key].send(json.dumps(packet).encode())
         # elif relationship_to == "prov" and relationship_from == "prov":
@@ -256,8 +256,8 @@ class Router:
       if key != peer:
         packet["src"] = key[:-1] + "1"
         packet["dst"] = key
-        relationship_to = self.relationships[key]
-        relationship_from = self.relationships[srcif]
+        relationship_to = self.relations[key]
+        relationship_from = self.relations[srcif]
         if relationship_to == "cust" or relationship_from == "cust":
           self.sockets[key].send(json.dumps(packet).encode())
         # elif relationship_to == "prov" and relationship_from == "prov":
