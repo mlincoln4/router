@@ -179,10 +179,10 @@ class Router:
       # 1. Highest Preference
       if len(routes) > 1:
         routes = self.get_highest_preference(routes)
-        print(routes)
       # 2. Self Origin
       if len(routes) > 1:
         routes = self.get_self_origin(routes)
+        print(routes)
       # 3. Shortest ASPath
       if len(routes) > 1:
         routes = self.get_shortest_as_path(routes)
