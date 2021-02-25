@@ -155,17 +155,18 @@ class Router:
     else:
       return UNK
 
-  def filter_relationships(self, srcif, route):
+  def filter_relationships(self, srcif, routes):
     """ Don't allow Peer->Peer, Peer->Prov, or Prov->Peer forwards """
     bgp_type = self.relations[srcif]
-    if self.relations[route["peer"]] == "peer":
-      if bgp_type == "cust":
+    for route in routes:
+      if self.relations[route["peer"]] == "peer":
+        if bgp_type == "cust":
+          return route
+      elif self.relations[route["peer"]] == "prov":
+        if bgp_type == "cust" or bgp_type == "prov":
+          return route
+      else:
         return route
-    elif self.relations[route["peer"]] == "prov":
-      if bgp_type == "cust" or bgp_type == "prov":
-        return route
-    else:
-      return route
 
   def get_route(self, srcif, daddr):
     """ Select the best route for a given address """
@@ -177,10 +178,11 @@ class Router:
     # Rules go here
     if routes:
       # 1. Highest Preference
-      routes = self.get_highest_preference(routes)
-      if daddr == '192.168.1.25':
-        print("pref")
-        print(routes)
+      if len(routes) > 1:
+        routes = self.get_highest_preference(routes)
+        if daddr == '192.168.1.25':
+          print("pref")
+          print(routes)
       # 2. Self Origin
       if len(routes) > 1:
         routes = self.get_self_origin(routes)
@@ -212,9 +214,9 @@ class Router:
               break
       if len(routes) > 1:
         # Final check: enforce peering relationships
-        route = self.filter_relationships(srcif, routes[0])
-        if route:
-          peer = route["peer"]
+        routes = self.filter_relationships(srcif, routes)
+      if routes:
+        peer = routes[0]["peer"]
     return self.sockets[peer] if peer else None
 
   def forward(self, srcif, packet):
