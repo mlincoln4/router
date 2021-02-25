@@ -174,12 +174,12 @@ class Router:
     """ Select the best route for a given address """
     peer = None
     routes = self.lookup_routes(daddr)
-    print(routes)
     # Rules go here
     if routes:
       # 1. Highest Preference
       if len(routes) > 1:
         routes = self.get_highest_preference(routes)
+        print(routes)
       # 2. Self Origin
       if len(routes) > 1:
         routes = self.get_self_origin(routes)
