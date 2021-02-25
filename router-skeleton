@@ -157,16 +157,18 @@ class Router:
 
   def filter_relationships(self, srcif, routes):
     """ Don't allow Peer->Peer, Peer->Prov, or Prov->Peer forwards """
+    outroutes = []
     bgp_type = self.relations[srcif]
     for route in routes:
       if self.relations[route["peer"]] == "peer":
         if bgp_type == "cust":
-          return route
+          outroutes.append(route)
       elif self.relations[route["peer"]] == "prov":
         if bgp_type == "cust" or bgp_type == "prov":
-          return route
+          outroutes.append(route)
       else:
-        return route
+        outroutes.append(route)
+    return outroutes
 
   def get_route(self, srcif, daddr):
     """ Select the best route for a given address """
