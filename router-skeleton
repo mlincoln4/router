@@ -183,6 +183,7 @@ class Router:
       # 2. Self Origin
       if len(routes) > 1:
         routes = self.get_self_origin(routes)
+        print(daddr)
         print(routes)
       # 3. Shortest ASPath
       if len(routes) > 1:
