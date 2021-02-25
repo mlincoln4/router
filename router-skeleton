@@ -171,7 +171,8 @@ class Router:
     """ Select the best route for a given address """
     peer = None
     routes = self.lookup_routes(daddr)
-    print(routes)
+    if daddr == '192.168.1.25'
+      print(routes)
     # Rules go here
     if routes:
       # 1. Highest Preference
@@ -180,15 +181,17 @@ class Router:
       # 2. Self Origin
       if len(routes) > 1:
         routes = self.get_self_origin(routes)
-        print(routes)
+        if daddr == '192.168.1.25'
+          print(routes)
       # 3. Shortest ASPath
       if len(routes) > 1:
-        routes = self.get_shortest_as_path(routes)
-        print(routes)
+        if daddr == '192.168.1.25'
+          print(routes)
       # 4. EGP > IGP > UNK
       if len(routes) > 1:
         routes = self.get_origin_routes(routes)
-        print(routes)
+        if daddr == '192.168.1.25'
+          print(routes)
       # 5. Lowest IP Address
       if len(routes) > 1:
         lowest_ip = [float('inf'), float('inf'), float('inf'), float('inf')]
