@@ -205,6 +205,7 @@ class Router:
               break
         for route in routes:
           if route["peer"] == '.'.join([str(x) for x in lowest_ip]):
+            print(route)
             routes = [route]
       if len(routes) >= 1:
         # Final check: enforce peering relationships
