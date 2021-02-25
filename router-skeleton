@@ -206,7 +206,7 @@ class Router:
     """ Forward a data packet """
     sock = self.get_route(srcif, packet["dst"])
     if not sock:
-      self.send_error(sock, srcif, packet)
+      self.send_error(srcif, packet)
       return False
     sock.send(json.dumps(packet).encode())
     return True
@@ -254,13 +254,13 @@ class Router:
       self.dump(packet)
     return True
 
-  def send_error(self, conn, srcif, msg):
+  def send_error(self, srcif, msg):
     """ Send a no_route error message """
     msg["type"] = "no route"
     msg["msg"] = {}
     msg["dst"] = msg["src"]
     msg["src"] = srcif[:-1] + "1"
-    conn.send(json.dumps(msg).encode())
+    self.sockets[srcif].send(json.dumps(msg).encode())
     return
 
   def run(self):
@@ -279,7 +279,7 @@ class Router:
               srcif = sock
           msg = json.loads(k)
           if not self.handle_packet(srcif, msg):
-            self.send_error(conn, srcif, msg)
+            self.send_error(srcif, msg)
         else:
           return
 
