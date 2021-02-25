@@ -218,7 +218,7 @@ class Router:
       return False
     # if sock != self.sockets[srcif]:
     sock.send(json.dumps(packet).encode())
-    areturn True
+    return True
     # return False
 
   def coalesce(self):
