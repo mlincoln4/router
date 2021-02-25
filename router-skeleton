@@ -66,25 +66,12 @@ class Router:
     for route in self.routes:
       network = route["network"]
       netmask = route["netmask"]
-      network_list = [format(int(x), '08b') for x in network.split('.')]
-      netmask_list = [format(int(x), '08b') for x in netmask.split('.')]
-      masked_min = ['', '', '', '']
-      for i in range(4):
-        for j in range(8):
-          if network_list[i][j] == '1' and netmask_list[i][j] == '1':
-            masked_min[i] += '1'
-          else:
-            masked_min[i] += '0'
-        masked_min[i] = int(masked_min[i], 2)
-      masked_max = ['', '', '', '']
-      for i in range(4):
-        netmask = netmask_list[i]
-        zeroes = netmask.count('0')
-        binary = '1' * zeroes
-        if binary != '':
-          masked_max[i] = int(binary, 2)
-        else:
-          masked_max[i] = int(masked_min[i])
+      mask_length = self.get_mask_length(netmask)
+      masked_min = self.get_masked(network, netmask)
+      masked_max = masked_min[:mask_length]
+      masked_max += "1" * (32 - mask_length)
+      masked_min = [int(x) for x in self.binary_to_ip(masked_min).split('.')]
+      masked_max = [int(x) for x in self.binary_to_ip(masked_max).split('.')]
       for i in range(4):
         if masked_min[i] == masked_max[i]:
           if dest_list[i] != masked_min[i]:
@@ -102,10 +89,7 @@ class Router:
       out = []
       for i in range(len(outroutes)):
         route = outroutes[i]
-        netmask = route['netmask'].split('.')
-        netmask_list = [format(int(x), '08b') for x in netmask]
-        netmask = ''.join(netmask_list)
-        length = netmask.count('1')
+        length = self.get_mask_length(route[netmask])
         if length > longest_mask:
           longest_mask = length
           out = []
