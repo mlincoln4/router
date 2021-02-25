@@ -130,12 +130,14 @@ class Router:
 
   def get_self_origin(self, routes):
     """ select self originating routes """
-    outroutes = []
+    true_routes = []
+    false_routes = []
     for route in routes:
-      print(route)
       if route["selfOrigin"]:
-        outroutes.append(route)
-    return outroutes
+        true_routes.append(route)
+      else:
+        false_routes.append(route)
+    return false_routes if len(false_routes) == len(routes) else true_routes
 
   def get_origin_routes(self, routes):
     """ select origin routes: EGP > IGP > UNK """
