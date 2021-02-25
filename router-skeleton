@@ -63,6 +63,8 @@ class Router:
     """ Lookup all valid routes for an address """
     outroutes = []
     dest_list = [int(x) for x in daddr.split('.')]
+    print(daddr)
+    print(self.routes)
     for route in self.routes:
       network = route["network"]
       netmask = route["netmask"]
@@ -182,7 +184,6 @@ class Router:
     """ Select the best route for a given address """
     peer = None
     routes = self.lookup_routes(daddr)
-    print(routes)
     # Rules go here
     if routes:
       # 1. Highest Preference
