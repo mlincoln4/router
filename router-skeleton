@@ -182,6 +182,7 @@ class Router:
     """ Select the best route for a given address """
     peer = None
     routes = self.lookup_routes(daddr)
+    print(routes)
     # Rules go here
     if routes:
       # 1. Highest Preference
@@ -300,9 +301,7 @@ class Router:
     """ handle update packets """
     self.updates[packet["src"]] = packet
     self.add_forwarding(packet)
-    print(self.routes)
     self.coalesce()
-    print(self.routes)
     packet["msg"]["ASPath"].append(self.asn)
     for key in self.sockets:
       if key != srcif:
