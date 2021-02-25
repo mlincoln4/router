@@ -233,8 +233,15 @@ class Router:
       if key != srcif:
         packet["src"] = key[:-1] + "1"
         packet["dst"] = key
-        self.sockets[key].send(json.dumps(packet).encode())
-    return
+        relationship_to = self.relationships[key]
+        relationship_from = self.relationships[srcif]
+        if relationship_to == "cust" or relationship_from == "cust":
+          self.sockets[key].send(json.dumps(packet).encode())
+        elif relationship_to == "prov" and relationship_from == "prov":
+          self.sockets[key].send(json.dumps(packet).encode())
+        else:
+          return False
+    return True
 
   def revoke(self, packet):
     """ handle revoke packets """
@@ -249,7 +256,14 @@ class Router:
       if key != peer:
         packet["src"] = key[:-1] + "1"
         packet["dst"] = key
-        self.sockets[key].send(json.dumps(packet).encode())
+        relationship_to = self.relationships[key]
+        relationship_from = self.relationships[srcif]
+        if relationship_to == "cust" or relationship_from == "cust":
+          self.sockets[key].send(json.dumps(packet).encode())
+        elif relationship_to == "prov" and relationship_from == "prov":
+          self.sockets[key].send(json.dumps(packet).encode())
+        else:
+          return False
     return True
 
   def dump(self, packet):
