@@ -191,7 +191,6 @@ class Router:
       # 4. EGP > IGP > UNK
       if len(routes) > 1:
         routes = self.get_origin_routes(routes)
-        print(routes)
       # 5. Lowest IP Address
       if len(routes) > 1:
         lowest_ip = [float('inf'), float('inf'), float('inf'), float('inf')]
