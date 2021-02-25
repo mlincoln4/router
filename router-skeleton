@@ -172,26 +172,32 @@ class Router:
     peer = None
     routes = self.lookup_routes(daddr)
     if daddr == '192.168.1.25':
+      print("start")
       print(routes)
     # Rules go here
     if routes:
       # 1. Highest Preference
       routes = self.get_highest_preference(routes)
       if daddr == '192.168.1.25':
+        print("pref")
         print(routes)
       # 2. Self Origin
       if len(routes) > 1:
         routes = self.get_self_origin(routes)
         if daddr == '192.168.1.25':
+          print("self origin")
           print(routes)
       # 3. Shortest ASPath
       if len(routes) > 1:
+        routes = self.get_shortest_as_path(routes)
         if daddr == '192.168.1.25':
+          print("AS path")
           print(routes)
       # 4. EGP > IGP > UNK
       if len(routes) > 1:
         routes = self.get_origin_routes(routes)
         if daddr == '192.168.1.25':
+          print("origin")
           print(routes)
       # 5. Lowest IP Address
       if len(routes) > 1:
