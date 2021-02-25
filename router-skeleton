@@ -95,20 +95,23 @@ class Router:
           break
       if i == 3:
         outroutes.append(route)
+    out = outroutes
     if len(outroutes) > 1:
       longest_mask = 0
+      out = []
       for i in range(len(outroutes)):
         route = outroutes[i]
         netmask = route['netmask'].split('.')
         netmask_list = [format(int(x), '08b') for x in netmask]
         netmask = ''.join(netmask_list)
         length = netmask.count('1')
-        if length >= longest_mask:
+        if length > longest_mask:
           longest_mask = length
-        else:
-          outroutes.pop(i)
-          i -= 1
-    return outroutes
+          out = []
+          out.append(route)
+        elif length == longest_mask:
+          out.append(route)
+    return out
 
   def get_shortest_as_path(self, routes):
     """ select the route with the shortest AS Path """
