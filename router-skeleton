@@ -174,6 +174,7 @@ class Router:
     """ Select the best route for a given address """
     peer = None
     routes = self.lookup_routes(daddr)
+    print(routes)
     # Rules go here
     if routes:
       # 1. Highest Preference
@@ -199,7 +200,6 @@ class Router:
             else:
               routes.pop(i)
               break
-      print(routes)
       if len(routes) >= 1:
         # Final check: enforce peering relationships
         routes = self.filter_relationships(srcif, routes)
