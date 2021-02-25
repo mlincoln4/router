@@ -264,7 +264,6 @@ class Router:
         peer_routes[route["peer"]].append(route)
       else:
         peer_routes[route["peer"]] = [route]
-    print(peer_routes)
     for key in peer_routes:
       routes = peer_routes[key]
       for route in routes:
@@ -301,7 +300,9 @@ class Router:
     """ handle update packets """
     self.updates[packet["src"]] = packet
     self.add_forwarding(packet)
+    print(self.routes)
     self.coalesce()
+    print(self.routes)
     packet["msg"]["ASPath"].append(self.asn)
     for key in self.sockets:
       if key != srcif:
