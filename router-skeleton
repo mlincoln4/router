@@ -193,9 +193,9 @@ class Router:
         routes = self.get_origin_routes(routes)
       # 5. Lowest IP Address
       if len(routes) > 1:
-        lowest_ip = [float('inf'), float('inf'), float('inf'), float('inf')]
+        lowest_ip = [int(x) for x in routes[0]["peer"].split('.')]
         routes_temp = []
-        for i in range(len(routes)):
+        for i in range(1, len(routes)):
           ip = [int(x) for x in routes[i]["peer"].split('.')]
           for j in range(4):
             if ip[j] < lowest_ip[j]:
