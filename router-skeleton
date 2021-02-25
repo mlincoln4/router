@@ -204,6 +204,8 @@ class Router:
 
   def forward(self, srcif, packet):
     """ Forward a data packet """
+    if not packet["dst"]:
+      return False
     route = self.get_route(srcif, packet["dst"])
     if not route:
       self.send_error(self.sockets[srcif], srcif, packet)
