@@ -63,8 +63,6 @@ class Router:
     """ Lookup all valid routes for an address """
     outroutes = []
     dest_list = [int(x) for x in daddr.split('.')]
-    print(daddr)
-    print(self.routes)
     for route in self.routes:
       network = route["network"]
       netmask = route["netmask"]
@@ -97,6 +95,7 @@ class Router:
           break
       if i == 3:
         outroutes.append(route)
+    print(outroutes)
     out = outroutes
     if len(outroutes) > 1:
       longest_mask = 0
