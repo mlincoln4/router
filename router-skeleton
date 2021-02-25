@@ -274,7 +274,6 @@ class Router:
         for other_route in routes:
           if other_route == route:
             continue
-          other_route = peer_routes[other_key]
           other_mask_length = self.get_mask_length(other_route["netmask"])
           if other_mask_length == mask_length:
             mask = self.get_masked(route["network"], route["netmask"])
