@@ -254,10 +254,10 @@ class Router:
   def same_attributes(self, route, other):
     msg1 = route["msg"]
     msg2 = other["msg"]
-    return msg1["localpref"] == msg2["localpref"] and
-    msg1["selfOrigin"] == msg2["selfOrigin"] and
-    msg1["ASPath"] == msg2["ASPath"] and
-    msg1["origin"] == msg2["origin"]
+    return msg1["localpref"] == msg2["localpref"]
+    and msg1["selfOrigin"] == msg2["selfOrigin"]
+    and msg1["ASPath"] == msg2["ASPath"]
+    and msg1["origin"] == msg2["origin"]
 
   def coalesce(self):
     """ coalesce any routes that are right next to each other """
