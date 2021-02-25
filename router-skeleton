@@ -199,10 +199,6 @@ class Router:
           for j in range(4):
             if ip[j] < lowest_ip[j]:
               lowest_ip[j] = ip[j]
-            else:
-              routes.pop(i)
-              i -= 1
-              break
         for route in routes:
           if route["peer"] == '.'.join([str(x) for x in lowest_ip]):
             routes = [route]
