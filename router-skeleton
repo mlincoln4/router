@@ -244,11 +244,12 @@ class Router:
 
   def binary_to_ip(self, binary):
     net_list = []
+    entry = ""
     for i in range(32):
       entry += binary[i]
       if i % 8 == 7:
         net_list.append(str(int(entry, 2)))
-        entry = []
+        entry = ""
     return '.'.join(net_list)
 
   def same_attributes(self, route, other):
@@ -265,7 +266,7 @@ class Router:
         peer_routes[route["peer"]].append(route)
       else:
         peer_routes[route["peer"]] = [route]
-    
+    print(peer_routes)
     for key in peer_routes:
       route = peer_routes[key]
       mask_length = self.get_mask_length(route['netmask'])
