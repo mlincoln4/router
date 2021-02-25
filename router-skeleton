@@ -196,7 +196,7 @@ class Router:
               routes.pop(i)
               break
       # Final check: enforce peering relationships
-      route = self.filter_relationships(srcif, routes)
+      route = self.filter_relationships(srcif, routes[0])
       if route:
         peer = route["peer"]
     return self.sockets[peer] if peer else None
