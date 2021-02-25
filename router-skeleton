@@ -237,8 +237,6 @@ class Router:
         relationship_from = self.relations[srcif]
         if relationship_to == "cust" or relationship_from == "cust":
           self.sockets[key].send(json.dumps(packet).encode())
-        # elif relationship_to == "prov" and relationship_from == "prov":
-        #   self.sockets[key].send(json.dumps(packet).encode())
         else:
           return False
     return True
@@ -260,8 +258,6 @@ class Router:
         relationship_from = self.relations[srcif]
         if relationship_to == "cust" or relationship_from == "cust":
           self.sockets[key].send(json.dumps(packet).encode())
-        # elif relationship_to == "prov" and relationship_from == "prov":
-        #   self.sockets[key].send(json.dumps(packet).encode())
         else:
           return False
     return True
