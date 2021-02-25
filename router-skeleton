@@ -158,7 +158,7 @@ class Router:
   def filter_relationships(self, srcif, routes):
     """ Don't allow Peer->Peer, Peer->Prov, or Prov->Peer forwards """
     outroutes = []
-    bgp_type = self.relations["srcif"]
+    bgp_type = self.relations[srcif]
     for route in routes:
       if self.relations[route["peer"]] == "peer":
         if bgp_type == "cust":
