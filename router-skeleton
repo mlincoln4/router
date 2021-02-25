@@ -174,6 +174,8 @@ class Router:
     """ Select the best route for a given address """
     peer = None
     routes = self.lookup_routes(daddr)
+    if daddr == "172.168.0.25":
+      print(routes)
     # Rules go here
     if routes:
       # 1. Highest Preference
@@ -204,8 +206,6 @@ class Router:
 
   def forward(self, srcif, packet):
     """ Forward a data packet """
-    if not packet["dst"]:
-      return False
     route = self.get_route(srcif, packet["dst"])
     if not route:
       self.send_error(self.sockets[srcif], srcif, packet)
