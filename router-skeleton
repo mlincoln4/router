@@ -208,15 +208,16 @@ class Router:
         routes = self.filter_relationships(srcif, routes)
       if routes:
         peer = routes[0]["peer"]
-    return self.sockets[peer] if peer else None
+    return peer
 
   def forward(self, srcif, packet):
     """ Forward a data packet """
-    sock = self.get_route(srcif, packet["dst"])
-    if not sock:
+    peer = self.get_route(srcif, packet["dst"])
+    if not peer:
       self.send_error(srcif, packet)
       return False
-    sock.send(json.dumps(packet).encode())
+    packet["src"] = peer[:-1] + "1"
+    self.sockets[peer].send(json.dumps(packet).encode())
     return True
 
   def coalesce(self):
