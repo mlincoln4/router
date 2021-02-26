@@ -317,6 +317,8 @@ class Router:
         continue
       for route in self.aggregates[key]:
         if route["network"] == target["network"] and route["netmask"] == target["netmask"]:
+          print("----------------------------- target")
+          print(route)
           aggregate = self.aggregates[key]
           self.aggregates[key] = [x for x in aggregate if x["network"] == route["network"] and x["netmask"] == route["netmask"]]
           # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
@@ -338,7 +340,6 @@ class Router:
             self.routes.remove(entry)
             for agg_route in aggregates:
               self.add_forwarding({"src" : peer, "msg" : agg_route})
-            self.coalesce()
         else:
           if entry["peer"] == peer and entry["network"] == route["network"] and entry["netmask"] == route["netmask"]:
             self.routes.remove(entry)
