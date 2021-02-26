@@ -105,9 +105,11 @@ class Router:
     best = float('inf')
     outroutes = []
     for route in routes:
-      if len(route["ASPath"]) <= best:
-        outroutes.append(route)
+      if len(route["ASPath"]) < best:
+        outroutes = [route]
         best = len(route["ASPath"])
+      elif len(route["ASPath"]) == best:
+        outroutes.append(route)
     return outroutes
 
   def get_highest_preference(self, routes):
@@ -119,9 +121,11 @@ class Router:
     highest_pref = 0
     outroutes = []
     for route in routes:
-      if route["localpref"] >= highest_pref:
-        outroutes.append(route)
+      if route["localpref"] > highest_pref:
+        outroutes = [route]
         highest_pref = route["localpref"]
+      elif route["localpref"] == highest_pref:
+        outroutes.append(route)
     return outroutes
 
   def get_self_origin(self, routes):
