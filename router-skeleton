@@ -282,9 +282,10 @@ class Router:
               self.aggregates[new_net + "/" + str(new_mask_length) + ":" + key] = aggregates1 + aggregates2
               new_mask = '1' * new_mask_length + '0' * (32 - new_mask_length)
               new_mask = self.binary_to_ip(new_mask)
-              route["network"] = new_net
-              route["netmask"] = new_mask
-              self.add_forwarding({"src" : key, "msg" : route})
+              new_route = route.copy()
+              new_route["network"] = new_net
+              new_route["netmask"] = new_mask
+              self.add_forwarding({"src" : key, "msg" : new_route})
     return False
 
   def update(self, srcif, packet):
