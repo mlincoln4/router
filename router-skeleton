@@ -320,6 +320,8 @@ class Router:
       for route in self.aggregates[key]:
         if route["network"] == target["network"] and route["netmask"] == target["netmask"]:
           aggregate = self.aggregates[key]
+          print("target:")
+          pprint.pprint(target)
           print("key: " + key)
           print("agg before:")
           pprint.pprint(self.aggregates)
