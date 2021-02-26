@@ -329,12 +329,6 @@ class Router:
           print("agg after:")
           pprint.pprint(self.aggregates)
           # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
-          network_netmask = key.split(':')[0]
-          network = network_netmask.split('/')[0]
-          netmask = network_netmask.split('/')[1]
-          netmask = '1' * int(netmask) + '0' * (32 - int(netmask))
-          netmask = self.binary_to_ip(netmask)
-          self.routes = [x for x in self.routes if x["network"] != network or x["netmask"] != netmask or x["peer"] != peer]
           return self.aggregates.pop(key), key.split(':')[0]
     return False, False
 
@@ -343,7 +337,8 @@ class Router:
     peer = packet["src"]
     for route in packet["msg"]:
       aggregates, network_netmask = self.deaggregate(route, peer)
-      for entry in self.routes:
+      for i in range(len(self.routes) - 1, -1, -1):
+        entry = self.routes[i]
         if aggregates:
           network = network_netmask.split('/')[0]
           netmask = network_netmask.split('/')[1]
