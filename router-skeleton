@@ -309,6 +309,8 @@ class Router:
     print(self.aggregates)
     for key in self.aggregates:
       if key.split(':')[1] != peer:
+        print(key)
+        print(key.split(':')[1])
         print(peer)
         continue
       if target in self.aggregates[key]:
