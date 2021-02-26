@@ -60,6 +60,7 @@ class Router:
     """ Add entry to forwarding table """
     self.routes.append({"network" : packet["msg"]["network"], "netmask" : packet["msg"]["netmask"], "peer" : packet["src"], "localpref" : packet["msg"]["localpref"],
     "selfOrigin" : packet["msg"]["selfOrigin"], "ASPath" : packet["msg"]["ASPath"], "origin" : packet["msg"]["origin"]})
+    self.coalesce()
 
   def lookup_routes(self, daddr):
     """ Lookup all valid routes for an address """
@@ -288,13 +289,13 @@ class Router:
               new_route["network"] = new_net
               new_route["netmask"] = new_mask
               self.add_forwarding({"src" : key, "msg" : new_route})
+
     return False
 
   def update(self, srcif, packet):
     """ handle update packets """
     self.updates[packet["src"]] = packet
     self.add_forwarding(packet)
-    self.coalesce()
     packet["msg"]["ASPath"].append(self.asn)
     for key in self.sockets:
       if key != srcif:
