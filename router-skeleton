@@ -5,7 +5,7 @@ import argparse
 import json
 import select
 import socket
-# import # pprint
+import pprint
 
 ##########################################################################################
 
@@ -112,6 +112,10 @@ class Router:
 
   def get_highest_preference(self, routes):
     """ select the route with the highest localpref """
+    print("self:")
+    pprint.pprint(self.routes)
+    print("routes")
+    pprint.pprint(routes)
     highest_pref = 0
     outroutes = []
     for route in routes:
@@ -310,8 +314,6 @@ class Router:
     return True
 
   def deaggregate(self, target, peer):
-    # print("self.aggregates:")
-    # pprint.p# print(self.aggregates)
     for key in self.aggregates:
       if key.split(':')[1] != peer:
         continue
@@ -369,10 +371,6 @@ class Router:
 
   def handle_packet(self, srcif, packet):
     """ dispatches a packet """
-    # print("packet:")
-    # print(packet)
-    # print("routes:")
-    # pprint.p# print(self.routes)
     if packet["type"] == "update":
       self.update(srcif, packet)
     elif packet["type"] == "data":
