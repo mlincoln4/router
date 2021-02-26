@@ -57,6 +57,10 @@ class Router:
       self.relations[network] = relation
     
   def add_forwarding(self, packet):
+    print("packet being added: ")
+    pprint.pprint(packet)
+    print("table:")
+    pprint.pprint(self.routes)
     """ Add entry to forwarding table """
     self.routes.append({"network" : packet["msg"]["network"], "netmask" : packet["msg"]["netmask"], "peer" : packet["src"], "localpref" : packet["msg"]["localpref"],
     "selfOrigin" : packet["msg"]["selfOrigin"], "ASPath" : packet["msg"]["ASPath"], "origin" : packet["msg"]["origin"]})
@@ -114,10 +118,6 @@ class Router:
 
   def get_highest_preference(self, routes):
     """ select the route with the highest localpref """
-    print("self:")
-    pprint.pprint(self.routes)
-    print("routes")
-    pprint.pprint(routes)
     highest_pref = 0
     outroutes = []
     for route in routes:
