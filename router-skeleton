@@ -284,10 +284,6 @@ class Router:
               route["network"] = new_net
               route["netmask"] = new_mask
               self.add_forwarding({"src" : key, "msg" : route})
-        
-    print(self.aggregates)
-    print(self.routes)
-    print("\n\n")
     return False
 
   def update(self, srcif, packet):
@@ -308,33 +304,34 @@ class Router:
           return False
     return True
 
-  # def find_matching_aggregate(self, outroutes, target, aggregates):
-  #   for network in aggregates:
-  #     if aggregates[network][0] == target:
-  #       outroutes.append(aggregates[network][1])
-  #       aggregates.pop(network)
-  #     elif aggregates[network][1] == target:
-  #       outroutes.append(aggregates[network][0])
-  #       aggregates.pop(network)
+  def deaggregate(self, target, peer):
+    for key in self.aggregates:
+      if key.split(':')[1] != peer:
+        continue
+      if target in self.aggregates[key]:
+        self.aggregates[key].remove(target)
+        # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
+        return self.aggregates.pop(key, False), key.split(':')[0]
 
   def revoke(self, packet):
     """ handle revoke packets """
     peer = packet["src"]
     for route in packet["msg"]:
       for entry in self.routes:
-        if entry["peer"] == peer and entry["network"] == route["network"] and entry["netmask"] == route["netmask"]:
-          self.routes.remove(entry)
-        # check if given network has been aggregated
-      for network_in_table in self.aggregates:
-        for other_route in self.aggregates[network_in_table]:
-          if other_route == route["network"]:
-            self.aggregates[network_in_table].remove(other_route)
-            # remove this network from routing table
-            self.routes = [x for x in self.routes if self.routes["network"] == network_in_table]
-            # redo the updates
-            list_of_agg_routes = self.aggregates[network_in_table]
-            for r in list_of_agg_routes:
-              self.routes.append(r)
+        aggregates, network_netmask = self.deaggregate(route, peer)
+        if aggregates:
+          network = network_netmask.split('/')[0]
+          netmask = network_netmask.split('/')[1]
+          netmask = '1' * int(netmask) + '0' * (32 - int(netmask))
+          netmask = self.binary_to_ip(netmask)
+          if entry["network"] == network and entry["netmask"] == netmask and entry["peer"] == peer:
+            self.routes.remove(entry)
+            for route in aggregates:
+              self.add_forwarding({"src" : peer, "msg" : route})
+            self.coalesce()
+        else:
+          if entry["peer"] == peer and entry["network"] == route["network"] and entry["netmask"] == route["netmask"]:
+            self.routes.remove(entry)
     self.coalesce()
     self.revokes[packet["src"]] = packet
     for key in self.sockets:
