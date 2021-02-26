@@ -346,6 +346,7 @@ class Router:
     self.revokes[packet["src"]] = packet
     for key in self.sockets:
       if key != peer:
+        old_packet = packet.copy()
         packet["src"] = key[:-1] + "1"
         packet["dst"] = key
         relationship_to = self.relations[key]
@@ -353,7 +354,7 @@ class Router:
         if relationship_to == "cust" or relationship_from == "cust":
           self.sockets[key].send(json.dumps(packet).encode())
         else:
-          return False
+          self.send_error(key, old_packet)
     return True
 
   def dump(self, packet):
