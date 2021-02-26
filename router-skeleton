@@ -274,6 +274,8 @@ class Router:
               self.routes.remove(route)
               self.routes.remove(other_route)
               # find list of aggregates for each of these routes and remove
+              print(route["network"])
+              print(other_route["network"])
               aggregates1 = self.aggregates.pop(route["network"] + "/" + str(mask_length) + ":" + key, []) + [route]
               aggregates2 = self.aggregates.pop(other_route["network"] + "/" + str(mask_length) + ":" + key, []) + [other_route]
               new_mask_length = mask_length - 1
@@ -291,6 +293,7 @@ class Router:
     self.updates[packet["src"]] = packet
     self.add_forwarding(packet)
     self.coalesce()
+    print("\n")
     packet["msg"]["ASPath"].append(self.asn)
     for key in self.sockets:
       if key != srcif:
@@ -320,7 +323,6 @@ class Router:
     for route in packet["msg"]:
       for entry in self.routes:
         aggregates, network_netmask = self.deaggregate(route, peer)
-        print(aggregates)
         if aggregates:
           network = network_netmask.split('/')[0]
           netmask = network_netmask.split('/')[1]
