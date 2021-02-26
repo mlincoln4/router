@@ -256,7 +256,7 @@ class Router:
         route = routes[i]
         mask_length = self.get_mask_length(route['netmask'])
         for j in range(len(routes) - 1, -1, -1):
-          if j <= i:
+          if j >= i:
             continue
           other_route = routes[j]
           other_mask_length = self.get_mask_length(other_route["netmask"])
