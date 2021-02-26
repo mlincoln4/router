@@ -305,15 +305,14 @@ class Router:
           return False
     return True
 
-  def find_matching_aggregate(self, outroutes, target, aggregates):
-    for network in aggregates:
-      if network
-      if aggregates[network][0] == target:
-        outroutes.append(aggregates[network][1])
-        aggregates.pop(network)
-      elif aggregates[network][1] == target:
-        outroutes.append(aggregates[network][0])
-        aggregates.pop(network)
+  # def find_matching_aggregate(self, outroutes, target, aggregates):
+  #   for network in aggregates:
+  #     if aggregates[network][0] == target:
+  #       outroutes.append(aggregates[network][1])
+  #       aggregates.pop(network)
+  #     elif aggregates[network][1] == target:
+  #       outroutes.append(aggregates[network][0])
+  #       aggregates.pop(network)
 
   def revoke(self, packet):
     """ handle revoke packets """
