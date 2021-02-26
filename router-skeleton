@@ -319,6 +319,7 @@ class Router:
     peer = packet["src"]
     for route in packet["msg"]:
       for entry in self.routes:
+        print(self.aggregates)
         aggregates, network_netmask = self.deaggregate(route, peer)
         if aggregates:
           network = network_netmask.split('/')[0]
