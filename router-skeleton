@@ -274,8 +274,8 @@ class Router:
               self.routes.remove(route)
               self.routes.remove(other_route)
               # find list of aggregates for each of these routes and remove
-              aggregates1 = self.aggregates.pop(route["network"] + "/" + str(mask_length - 1) + ":" + key, []) + [route]
-              aggregates2 = self.aggregates.pop(other_route["network"] + "/" + str(mask_length - 1) + ":" + key, []) + [other_route]
+              aggregates1 = self.aggregates.pop(route["network"] + "/" + str(mask_length + 1) + ":" + key, []) + [route]
+              aggregates2 = self.aggregates.pop(other_route["network"] + "/" + str(mask_length + 1) + ":" + key, []) + [other_route]
               new_mask_length = mask_length - 1
               # update the list of aggregates to be the sum of the parts that were aggregated
               self.aggregates[new_net + "/" + str(new_mask_length) + ":" + key] = aggregates1 + aggregates2
