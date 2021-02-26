@@ -44,6 +44,7 @@ class Router:
     self.routes = []
     self.updates = {}
     self.revokes = {}
+    self.aggregates = {}
     self.relations = {}
     self.sockets = {}
     self.asn = asn
@@ -273,6 +274,7 @@ class Router:
               new_net = self.binary_to_ip(new_net)
               self.routes.remove(route)
               self.routes.remove(other_route)
+              self.aggregates[new_net] = [route, other_route]
               new_mask_length = mask_length - 1
               new_mask = '1' * new_mask_length + '0' * (32 - new_mask_length)
               new_mask = self.binary_to_ip(new_mask)
