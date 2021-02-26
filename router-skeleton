@@ -57,10 +57,6 @@ class Router:
       self.relations[network] = relation
     
   def add_forwarding(self, packet):
-    print("packet being added: ")
-    pprint.pprint(packet)
-    print("table:")
-    pprint.pprint(self.routes)
     """ Add entry to forwarding table """
     self.routes.append({"network" : packet["msg"]["network"], "netmask" : packet["msg"]["netmask"], "peer" : packet["src"], "localpref" : packet["msg"]["localpref"],
     "selfOrigin" : packet["msg"]["selfOrigin"], "ASPath" : packet["msg"]["ASPath"], "origin" : packet["msg"]["origin"]})
@@ -324,7 +320,12 @@ class Router:
       for route in self.aggregates[key]:
         if route["network"] == target["network"] and route["netmask"] == target["netmask"]:
           aggregate = self.aggregates[key]
+          print("key: " + key)
+          print("agg before:")
+          pprint.pprint(self.aggregates)
           self.aggregates[key] = [x for x in aggregate if x["network"] != route["network"] and x["netmask"] != route["netmask"]]
+          print("agg after:")
+          pprint.pprint(self.aggregates)
           # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
           return self.aggregates.pop(key), key.split(':')[0]
     return False, False
