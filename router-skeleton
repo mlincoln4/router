@@ -320,7 +320,7 @@ class Router:
           print("----------------------------- target")
           print(route)
           aggregate = self.aggregates[key]
-          self.aggregates[key] = [x for x in aggregate if x["network"] == route["network"] and x["netmask"] == route["netmask"]]
+          self.aggregates[key] = [x for x in aggregate if x["network"] != route["network"] and x["netmask"] != route["netmask"]]
           # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
           return self.aggregates.pop(key), key.split(':')[0]
     return False, False
