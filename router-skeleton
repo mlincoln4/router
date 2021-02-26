@@ -252,11 +252,13 @@ class Router:
         peer_routes[route["peer"]] = [route]
     for key in peer_routes:
       routes = peer_routes[key]
-      for route in routes:
+      for i in range(len(routes) - 1, -1, -1):
+        route = routes[i]
         mask_length = self.get_mask_length(route['netmask'])
-        for other_route in routes:
-          if other_route == route:
+        for j in range(len(routes) - 1, -1, -1):
+          if j <= i:
             continue
+          other_route = routes[j]
           other_mask_length = self.get_mask_length(other_route["netmask"])
           if other_mask_length == mask_length:
             mask = self.get_masked(route["network"], route["netmask"])
