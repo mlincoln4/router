@@ -347,8 +347,10 @@ class Router:
             self.routes.remove(entry)
             for agg_route in aggregates:
               self.add_forwarding({"src" : peer, "msg" : agg_route})
-            print("routing table")
-            pprint.pprint(self.routes)
+              print("adding aggregate: ")
+              print(agg_route)
+              print("routing table:")
+              pprint.pprint(self.routes)
         else:
           if entry["peer"] == peer and entry["network"] == route["network"] and entry["netmask"] == route["netmask"]:
             self.routes.remove(entry)
