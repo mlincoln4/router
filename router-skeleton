@@ -370,6 +370,8 @@ class Router:
 
   def handle_packet(self, srcif, packet):
     """ dispatches a packet """
+    print("routes:")
+    pprint.pprint(self.routes)
     if packet["type"] == "update":
       self.update(srcif, packet)
     elif packet["type"] == "data":
