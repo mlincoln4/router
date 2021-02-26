@@ -284,8 +284,9 @@ class Router:
               route["network"] = new_net
               route["netmask"] = new_mask
               self.add_forwarding({"src" : key, "msg" : route})
-              print(self.aggregates)
-              print(self.routes)
+        
+    print(self.aggregates)
+    print(self.routes)
     return False
 
   def update(self, srcif, packet):
