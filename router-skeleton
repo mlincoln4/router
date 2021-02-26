@@ -319,6 +319,7 @@ class Router:
             list_of_agg_routes = self.aggregates[network_in_table]
             for r in list_of_agg_routes:
               self.routes.append(r)
+    self.coalesce()
     self.revokes[packet["src"]] = packet
     for key in self.sockets:
       if key != peer:
