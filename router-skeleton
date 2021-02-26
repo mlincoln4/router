@@ -350,7 +350,6 @@ class Router:
         else:
           if entry["peer"] == peer and entry["network"] == route["network"] and entry["netmask"] == route["netmask"]:
             self.routes.remove(entry)
-    self.coalesce()
     self.revokes[packet["src"]] = packet
     for key in self.sockets:
       if key != peer:
