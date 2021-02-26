@@ -310,6 +310,9 @@ class Router:
     for key in self.aggregates:
       if key.split(':')[1] != peer:
         continue
+
+      print("key: " + key)
+      print(target)
       if target in self.aggregates[key]:
         self.aggregates[key].remove(target)
         # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
@@ -320,10 +323,8 @@ class Router:
     """ handle revoke packets """
     peer = packet["src"]
     for route in packet["msg"]:
+      aggregates, network_netmask = self.deaggregate(route, peer)
       for entry in self.routes:
-        aggregates, network_netmask = self.deaggregate(route, peer)
-        print("aggregates:")
-        print(aggregates)
         if aggregates:
           network = network_netmask.split('/')[0]
           netmask = network_netmask.split('/')[1]
