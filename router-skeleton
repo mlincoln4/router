@@ -329,6 +329,10 @@ class Router:
           print("agg after:")
           pprint.pprint(self.aggregates)
           # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
+          network_netmask = key.split(':')[0]
+          network = network_netmask.split('/')[0]
+          netmask = network_netmask.split('/')[1]
+          self.routes = [x for x in self.routes if x["network"] != network or x["netmask"] != netmask]
           return self.aggregates.pop(key), key.split(':')[0]
     return False, False
 
