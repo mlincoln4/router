@@ -345,7 +345,7 @@ class Router:
           netmask = '1' * int(netmask) + '0' * (32 - int(netmask))
           netmask = self.binary_to_ip(netmask)
           if entry["network"] == network and entry["netmask"] == netmask and entry["peer"] == peer:
-            self.routes.remove(entry)
+            self.routes.pop(i)
             for agg_route in aggregates:
               self.add_forwarding({"src" : peer, "msg" : agg_route})
               print("adding aggregate: ")
