@@ -83,7 +83,6 @@ class Router:
           break
       if i == 3:
         outroutes.append(route)
-    print(outroutes)
     out = outroutes
     if len(outroutes) > 1:
       longest_mask = 0
@@ -274,13 +273,18 @@ class Router:
               new_net = self.binary_to_ip(new_net)
               self.routes.remove(route)
               self.routes.remove(other_route)
-              self.aggregates[new_net] = [route, other_route]
+              # find list of aggregates for each of these routes and remove
+              aggregates1 = self.aggregates.pop(route[network] + "/" + mask_length + ":" + peer, [])
+              aggregates2 = self.aggregates.pop(other_route[network] + "/" + mask_length + ":" + peer, [])
               new_mask_length = mask_length - 1
+              # update the list of aggregates to be the sum of the parts that were aggregated
+              self.aggregates[new_net + "/" + new_mask_length + ":" + peer] = aggregates1 + aggregates2
               new_mask = '1' * new_mask_length + '0' * (32 - new_mask_length)
               new_mask = self.binary_to_ip(new_mask)
               route["network"] = new_net
               route["netmask"] = new_mask
               self.add_forwarding({"src" : key, "msg" : route})
+              print(self.aggregates)
     return False
 
   def update(self, srcif, packet):
@@ -300,6 +304,16 @@ class Router:
         else:
           return False
     return True
+
+  def find_matching_aggregate(self, outroutes, target, aggregates):
+    for network in aggregates:
+      if network
+      if aggregates[network][0] == target:
+        outroutes.append(aggregates[network][1])
+        aggregates.pop(network)
+      elif aggregates[network][1] == target:
+        outroutes.append(aggregates[network][0])
+        aggregates.pop(network)
 
   def revoke(self, packet):
     """ handle revoke packets """
