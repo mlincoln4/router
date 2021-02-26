@@ -305,6 +305,8 @@ class Router:
     return True
 
   def deaggregate(self, target, peer):
+
+    print(self.aggregates)
     for key in self.aggregates:
       if key.split(':')[1] != peer:
         continue
