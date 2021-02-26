@@ -311,7 +311,8 @@ class Router:
       if target in self.aggregates[key]:
         self.aggregates[key].remove(target)
         # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
-        return self.aggregates.pop(key, False), key.split(':')[0]
+        return self.aggregates.pop(key), key.split(':')[0]
+    return False, False
 
   def revoke(self, packet):
     """ handle revoke packets """
