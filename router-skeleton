@@ -273,6 +273,8 @@ class Router:
               new_net = self.binary_to_ip(new_net)
               self.routes.remove(route)
               self.routes.remove(other_route)
+              print(route)
+              print(other_route)
               # find list of aggregates for each of these routes and remove
               aggregates1 = self.aggregates.pop(route["network"] + "/" + str(mask_length) + ":" + key, [route])
               aggregates2 = self.aggregates.pop(other_route["network"] + "/" + str(mask_length) + ":" + key, [other_route])
@@ -305,13 +307,9 @@ class Router:
     return True
 
   def deaggregate(self, target, peer):
-
-    print(self.aggregates)
     for key in self.aggregates:
       if key.split(':')[1] != peer:
         continue
-      print(self.aggregates[key])
-      print(target)
       if target in self.aggregates[key]:
         self.aggregates[key].remove(target)
         # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
@@ -324,9 +322,6 @@ class Router:
     for route in packet["msg"]:
       for entry in self.routes:
         aggregates, network_netmask = self.deaggregate(route, peer)
-        print(aggregates)
-        print("\n")
-        print(network_netmask)
         if aggregates:
           network = network_netmask.split('/')[0]
           netmask = network_netmask.split('/')[1]
