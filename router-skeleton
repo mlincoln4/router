@@ -6,38 +6,6 @@ import json
 import select
 import socket
 
-##########################################################################################
-
-# Message Fields
-TYPE = "type"
-SRCE = "src"
-DEST = "dst"
-MESG = "msg"
-TABL = "table"
-
-# Message Types
-DATA = "data"
-DUMP = "dump"
-UPDT = "update"
-RVKE = "revoke"
-NRTE = "no route"
-
-# Update Message Fields
-NTWK = "network"
-NMSK = "netmask"
-ORIG = "origin"
-LPRF = "localpref"
-APTH = "ASPath"
-SORG = "selfOrigin"
-
-# internal route info
-CUST = "cust"
-PEER = "peer"
-PROV = "prov"
-
-
-##########################################################################################
-
 class Router:
   """ Your Router """
   def __init__(self, networks, asn):
@@ -47,6 +15,7 @@ class Router:
     self.relations = {}
     self.sockets = {}
     self.asn = asn
+    self.aggregates = {}
     for relationship in networks:
       network, relation = relationship.split("-")
       self.sockets[network] = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
@@ -271,6 +240,7 @@ class Router:
               else:
                 new_net = other_mask
               new_net = self.binary_to_ip(new_net)
+              self.aggregates[new_net] = [route, other_route]
               self.routes.remove(route)
               self.routes.remove(other_route)
               new_mask_length = mask_length - 1
@@ -304,9 +274,23 @@ class Router:
     peer = packet["src"]
     for route in packet["msg"]:
       for entry in self.routes:
-        if entry["peer"] == peer:
-          if entry["network"] == route["network"] and entry["netmask"] == route["netmask"]:
-            self.routes.remove(entry)
+        if entry["peer"] == peer and entry["network"] == route["network"] and entry["netmask"] == route["netmask"]:
+          self.routes.remove(entry)
+        # check if given network has been aggregated
+      for network_in_table in self.aggregates:
+        for other_route in self.aggregates[network_in_table]:
+          if other_route == route["network"]:
+            self.aggregates[network_in_table].remove(other_route)
+            # remove this network from routing table
+            self.routes = [x for x in self.routes if self.routes["network"] == network_in_table]
+            # redo the updates
+            list_of_agg_routes = self.aggregates[network_in_table]
+            for r in list_of_agg_routes:
+              self.routes.append(r)
+
+
+
+
     self.revokes[packet["src"]] = packet
     for key in self.sockets:
       if key != peer:
