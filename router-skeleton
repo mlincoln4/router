@@ -5,6 +5,7 @@ import argparse
 import json
 import select
 import socket
+# import # pprint
 
 ##########################################################################################
 
@@ -59,6 +60,7 @@ class Router:
     """ Add entry to forwarding table """
     self.routes.append({"network" : packet["msg"]["network"], "netmask" : packet["msg"]["netmask"], "peer" : packet["src"], "localpref" : packet["msg"]["localpref"],
     "selfOrigin" : packet["msg"]["selfOrigin"], "ASPath" : packet["msg"]["ASPath"], "origin" : packet["msg"]["origin"]})
+    self.coalesce()
 
   def lookup_routes(self, daddr):
     """ Lookup all valid routes for an address """
@@ -83,14 +85,13 @@ class Router:
           break
       if i == 3:
         outroutes.append(route)
-    print(outroutes)
     out = outroutes
     if len(outroutes) > 1:
       longest_mask = 0
       out = []
       for i in range(len(outroutes)):
         route = outroutes[i]
-        length = self.get_mask_length(route[netmask])
+        length = self.get_mask_length(route["netmask"])
         if length > longest_mask:
           longest_mask = length
           out = []
@@ -252,11 +253,13 @@ class Router:
         peer_routes[route["peer"]] = [route]
     for key in peer_routes:
       routes = peer_routes[key]
-      for route in routes:
+      for i in range(len(routes) - 1, -1, -1):
+        route = routes[i]
         mask_length = self.get_mask_length(route['netmask'])
-        for other_route in routes:
-          if other_route == route:
+        for j in range(len(routes) - 1, -1, -1):
+          if j >= i:
             continue
+          other_route = routes[j]
           other_mask_length = self.get_mask_length(other_route["netmask"])
           if other_mask_length == mask_length:
             mask = self.get_masked(route["network"], route["netmask"])
@@ -274,20 +277,25 @@ class Router:
               new_net = self.binary_to_ip(new_net)
               self.routes.remove(route)
               self.routes.remove(other_route)
-              self.aggregates[new_net] = [route, other_route]
+              # find list of aggregates for each of these routes and remove
+              aggregates1 = self.aggregates.pop(route["network"] + "/" + str(mask_length) + ":" + key, []) + [route]
+              aggregates2 = self.aggregates.pop(other_route["network"] + "/" + str(mask_length) + ":" + key, []) + [other_route]
               new_mask_length = mask_length - 1
+              # update the list of aggregates to be the sum of the parts that were aggregated
+              self.aggregates[new_net + "/" + str(new_mask_length) + ":" + key] = aggregates1 + aggregates2
               new_mask = '1' * new_mask_length + '0' * (32 - new_mask_length)
               new_mask = self.binary_to_ip(new_mask)
-              route["network"] = new_net
-              route["netmask"] = new_mask
-              self.add_forwarding({"src" : key, "msg" : route})
+              new_route = route.copy()
+              new_route["network"] = new_net
+              new_route["netmask"] = new_mask
+              self.add_forwarding({"src" : key, "msg" : new_route})
+
     return False
 
   def update(self, srcif, packet):
     """ handle update packets """
     self.updates[packet["src"]] = packet
     self.add_forwarding(packet)
-    self.coalesce()
     packet["msg"]["ASPath"].append(self.asn)
     for key in self.sockets:
       if key != srcif:
@@ -301,27 +309,43 @@ class Router:
           return False
     return True
 
+  def deaggregate(self, target, peer):
+    # print("self.aggregates:")
+    # pprint.p# print(self.aggregates)
+    for key in self.aggregates:
+      if key.split(':')[1] != peer:
+        continue
+      for route in self.aggregates[key]:
+        if route["network"] == target["network"] and route["netmask"] == target["netmask"]:
+          aggregate = self.aggregates[key]
+          self.aggregates[key] = [x for x in aggregate if x["network"] != route["network"] and x["netmask"] != route["netmask"]]
+          # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
+          return self.aggregates.pop(key), key.split(':')[0]
+    return False, False
+
   def revoke(self, packet):
     """ handle revoke packets """
     peer = packet["src"]
     for route in packet["msg"]:
+      aggregates, network_netmask = self.deaggregate(route, peer)
       for entry in self.routes:
-        if entry["peer"] == peer and entry["network"] == route["network"] and entry["netmask"] == route["netmask"]:
-          self.routes.remove(entry)
-        # check if given network has been aggregated
-      for network_in_table in self.aggregates:
-        for other_route in self.aggregates[network_in_table]:
-          if other_route == route["network"]:
-            self.aggregates[network_in_table].remove(other_route)
-            # remove this network from routing table
-            self.routes = [x for x in self.routes if self.routes["network"] == network_in_table]
-            # redo the updates
-            list_of_agg_routes = self.aggregates[network_in_table]
-            for r in list_of_agg_routes:
-              self.routes.append(r)
+        if aggregates:
+          network = network_netmask.split('/')[0]
+          netmask = network_netmask.split('/')[1]
+          netmask = '1' * int(netmask) + '0' * (32 - int(netmask))
+          netmask = self.binary_to_ip(netmask)
+          if entry["network"] == network and entry["netmask"] == netmask and entry["peer"] == peer:
+            self.routes.remove(entry)
+            for agg_route in aggregates:
+              self.add_forwarding({"src" : peer, "msg" : agg_route})
+        else:
+          if entry["peer"] == peer and entry["network"] == route["network"] and entry["netmask"] == route["netmask"]:
+            self.routes.remove(entry)
+    self.coalesce()
     self.revokes[packet["src"]] = packet
     for key in self.sockets:
       if key != peer:
+        old_packet = packet.copy()
         packet["src"] = key[:-1] + "1"
         packet["dst"] = key
         relationship_to = self.relations[key]
@@ -329,7 +353,7 @@ class Router:
         if relationship_to == "cust" or relationship_from == "cust":
           self.sockets[key].send(json.dumps(packet).encode())
         else:
-          return False
+          self.send_error(key, old_packet)
     return True
 
   def dump(self, packet):
@@ -345,6 +369,10 @@ class Router:
 
   def handle_packet(self, srcif, packet):
     """ dispatches a packet """
+    # print("packet:")
+    # print(packet)
+    # print("routes:")
+    # pprint.p# print(self.routes)
     if packet["type"] == "update":
       self.update(srcif, packet)
     elif packet["type"] == "data":
