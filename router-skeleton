@@ -5,39 +5,6 @@ import argparse
 import json
 import select
 import socket
-import pprint
-
-##########################################################################################
-
-# Message Fields
-TYPE = "type"
-SRCE = "src"
-DEST = "dst"
-MESG = "msg"
-TABL = "table"
-
-# Message Types
-DATA = "data"
-DUMP = "dump"
-UPDT = "update"
-RVKE = "revoke"
-NRTE = "no route"
-
-# Update Message Fields
-NTWK = "network"
-NMSK = "netmask"
-ORIG = "origin"
-LPRF = "localpref"
-APTH = "ASPath"
-SORG = "selfOrigin"
-
-# internal route info
-CUST = "cust"
-PEER = "peer"
-PROV = "prov"
-
-
-##########################################################################################
 
 class Router:
   """ Your Router """
@@ -320,14 +287,7 @@ class Router:
       for route in self.aggregates[key]:
         if route["network"] == target["network"] and route["netmask"] == target["netmask"]:
           aggregate = self.aggregates[key]
-          print("target:")
-          pprint.pprint(target)
-          print("key: " + key)
-          print("agg before:")
-          pprint.pprint(self.aggregates)
           self.aggregates[key] = [x for x in aggregate if x["network"] != route["network"] or x["netmask"] != route["netmask"]]
-          print("agg after:")
-          pprint.pprint(self.aggregates)
           # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
           return self.aggregates.pop(key), key.split(':')[0]
     return False, False
@@ -348,10 +308,6 @@ class Router:
             self.routes.pop(i)
             for agg_route in aggregates:
               self.add_forwarding({"src" : peer, "msg" : agg_route})
-              print("adding aggregate: ")
-              print(agg_route)
-              print("routing table:")
-              pprint.pprint(self.routes)
         else:
           if entry["peer"] == peer and entry["network"] == route["network"] and entry["netmask"] == route["netmask"]:
             self.routes.remove(entry)
