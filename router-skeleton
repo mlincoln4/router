@@ -332,7 +332,9 @@ class Router:
           network_netmask = key.split(':')[0]
           network = network_netmask.split('/')[0]
           netmask = network_netmask.split('/')[1]
-          self.routes = [x for x in self.routes if x["network"] != network or x["netmask"] != netmask]
+          netmask = '1' * int(netmask) + '0' * (32 - int(netmask))
+          netmask = self.binary_to_ip(netmask)
+          self.routes = [x for x in self.routes if x["network"] != network or x["netmask"] != netmask or x["peer"] != peer]
           return self.aggregates.pop(key), key.split(':')[0]
     return False, False
 
