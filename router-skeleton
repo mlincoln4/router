@@ -309,10 +309,9 @@ class Router:
     print(self.aggregates)
     for key in self.aggregates:
       if key.split(':')[1] != peer:
-        print(key)
-        print(key.split(':')[1])
-        print(peer)
         continue
+      print(self.aggregates[key])
+      print(target)
       if target in self.aggregates[key]:
         self.aggregates[key].remove(target)
         # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
