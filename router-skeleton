@@ -325,7 +325,7 @@ class Router:
           print("key: " + key)
           print("agg before:")
           pprint.pprint(self.aggregates)
-          self.aggregates[key] = [x for x in aggregate if x["network"] != route["network"] and x["netmask"] != route["netmask"]]
+          self.aggregates[key] = [x for x in aggregate if x["network"] != route["network"] or x["netmask"] != route["netmask"]]
           print("agg after:")
           pprint.pprint(self.aggregates)
           # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
