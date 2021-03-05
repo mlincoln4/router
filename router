@@ -182,7 +182,7 @@ class Router:
     return True
   
   def get_masked(self, network, netmask):
-    """ Compute and return the network after applying the netmask """
+      """ Compute and return the network after applying the netmask """
       network_list = [format(int(x), '08b') for x in network.split('.')]
       netmask_list = [format(int(x), '08b') for x in netmask.split('.')]
       masked = ['', '', '', '']
@@ -195,7 +195,7 @@ class Router:
       return ''.join(masked)
   
   def get_mask_length(self, netmask):
-    """ Get the length of a netmask """
+      """ Get the length of a netmask """
       netmask = netmask.split('.')
       netmask_list = [format(int(x), '08b') for x in netmask]
       netmask = ''.join(netmask_list)
