@@ -182,6 +182,7 @@ class Router:
     return True
   
   def get_masked(self, network, netmask):
+    """ Compute and return the network after applying the netmask """
       network_list = [format(int(x), '08b') for x in network.split('.')]
       netmask_list = [format(int(x), '08b') for x in netmask.split('.')]
       masked = ['', '', '', '']
@@ -194,6 +195,7 @@ class Router:
       return ''.join(masked)
   
   def get_mask_length(self, netmask):
+    """ Get the length of a netmask """
       netmask = netmask.split('.')
       netmask_list = [format(int(x), '08b') for x in netmask]
       netmask = ''.join(netmask_list)
@@ -201,6 +203,7 @@ class Router:
       return mask_length
 
   def binary_to_ip(self, binary):
+    """ Return the ip for a corresponding byte string """
     net_list = []
     entry = ""
     for i in range(32):
@@ -211,6 +214,7 @@ class Router:
     return '.'.join(net_list)
 
   def same_attributes(self, route, other):
+    """ Check that all attributes are the same """
     return route["localpref"] == other["localpref"] and route["selfOrigin"] == other["selfOrigin"] and route["ASPath"] == other["ASPath"] and route["origin"] == other["origin"]
 
   def coalesce(self):
@@ -218,10 +222,12 @@ class Router:
     peer_routes = {}
     routes = self.routes
     for route in routes:
+      # aggregate routes by peer
       if route["peer"] in peer_routes:
         peer_routes[route["peer"]].append(route)
       else:
         peer_routes[route["peer"]] = [route]
+    # check each route in the peer routes for aggregation
     for key in peer_routes:
       routes = peer_routes[key]
       for i in range(len(routes) - 1, -1, -1):
@@ -232,6 +238,8 @@ class Router:
             continue
           other_route = routes[j]
           other_mask_length = self.get_mask_length(other_route["netmask"])
+          # if mask lengths are equal, check that the networks are the same when masked
+          # and have the same attributes
           if other_mask_length == mask_length:
             mask = self.get_masked(route["network"], route["netmask"])
             other_mask = self.get_masked(other_route["network"], other_route["netmask"])
@@ -284,18 +292,21 @@ class Router:
     for key in self.aggregates:
       if key.split(':')[1] != peer:
         continue
+      # find the route that is being removed in the aggregates
       for route in self.aggregates[key]:
         if route["network"] == target["network"] and route["netmask"] == target["netmask"]:
           aggregate = self.aggregates[key]
           self.aggregates[key] = [x for x in aggregate if x["network"] != route["network"] or x["netmask"] != route["netmask"]]
           # return the list of the rest of routes that make up the aggregate and the network/netmask in the table
           return self.aggregates.pop(key), key.split(':')[0]
+    # the route has not been aggregated for this peer
     return False, False
 
   def revoke(self, packet):
     """ handle revoke packets """
     peer = packet["src"]
     for route in packet["msg"]:
+      # return the rest of the routes in the aggregate and the netmask of the peer
       aggregates, network_netmask = self.deaggregate(route, peer)
       for i in range(len(self.routes) - 1, -1, -1):
         entry = self.routes[i]
@@ -304,10 +315,13 @@ class Router:
           netmask = network_netmask.split('/')[1]
           netmask = '1' * int(netmask) + '0' * (32 - int(netmask))
           netmask = self.binary_to_ip(netmask)
+          # remove the aggregated network froum the routing table
           if entry["network"] == network and entry["netmask"] == netmask and entry["peer"] == peer:
             self.routes.pop(i)
+            # restore the rest of the routes from the aggregate that weren't revoked
             for agg_route in aggregates:
               self.add_forwarding({"src" : peer, "msg" : agg_route})
+        # revoked route was not aggregated, remove it
         else:
           if entry["peer"] == peer and entry["network"] == route["network"] and entry["netmask"] == route["netmask"]:
             self.routes.remove(entry)
